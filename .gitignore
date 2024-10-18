@@ -1,0 +1,23 @@
+# Ignore node_modules inside textual-tonic
+textual-tonic/node_modules/
+
+# Ignore build output
+textual-tonic/.next/
+
+# Ignore lock files
+textual-tonic/package-lock.json
+textual-tonic/yarn.lock
+
+# Ignore environment variables
+textual-tonic/.env
+textual-tonic/.env.local
+textual-tonic/.env.production
+textual-tonic/.env.test
+textual-tonic/textual-tonic.zip
+
+# Ignore ven1 folder in the root
+/venv1
+/venv
+
+# Ignore other relevant files
+.DS_Store
