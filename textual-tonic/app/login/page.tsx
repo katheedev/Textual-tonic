@@ -6,22 +6,41 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useToast } from "@/hooks/use-toast"
 
 export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const { toast } = useToast()
   const { login } = useAuth()
 
   const handleLogin = async (e) => {
     e.preventDefault()
+  
     try {
-      await login(username, password)
+      const response = await login(username, password)
+      if (response.ok) {
+        toast({
+          title: "Login Success",
+        })
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: response.message,
+        })
+      }
     } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      })
       setError('Invalid username or password')
     }
   }
-
+  
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>

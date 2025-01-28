@@ -39,17 +39,28 @@ def register_user():
     username = data['username']
     password = data['password']
     
-    hashed_password = generate_password_hash(password)
-    
-    # Store user data in MySQL
+    # Connect to the database
     conn = connect_db()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
+
+    # Check if the username already exists
+    cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
+    existing_user = cursor.fetchone()
+    
+    if existing_user:
+        cursor.close()
+        conn.close()
+        return jsonify({'message': 'User already exists.'}), 409  # HTTP 409 Conflict
+
+    # If the user does not exist, insert the new user
+    hashed_password = generate_password_hash(password)
     cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
     conn.commit()
     cursor.close()
     conn.close()
     
     return jsonify({'message': 'User registered successfully!'}), 201
+
 
 # Route to log in a user
 @app.route('/login', methods=['POST'])
@@ -75,10 +86,12 @@ def login_user():
         return jsonify({'message': 'Invalid username or password'}), 401
 
 # Route to log out a user
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout_user():
     session.clear()  # Clear the session
-    return jsonify({'message': 'You have been logged out.'})
+    response = jsonify({'message': 'You have been logged out.'})
+    response.delete_cookie('session')  # Explicitly delete the session cookie
+    return response, 200
     
 
 # Route for basic sentiment analysis
@@ -220,6 +233,26 @@ def get_history():
     conn.close()
 
     return jsonify(history)
+
+@app.route('/check-auth', methods=['GET'])
+def check_auth():
+    if 'user_id' in session:
+        user_id = session['user_id']
+        conn = connect_db()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, username FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user:
+            return jsonify({'user': user}), 200
+        else:
+            session.clear()  # Clear the session if the user doesn't exist in the database
+            return jsonify({'message': 'User not found.'}), 401
+    else:
+        return jsonify({'message': 'Not authenticated.'}), 401
+
 
 if __name__ == '__main__':
     app.run(debug=True)
