@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,9 @@ import {
   Legend,
 } from "chart.js";
 import { FaClock, FaFileAlt, FaAlignLeft } from "react-icons/fa"; // Importing Clock Icon
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/components/AuthProvider"
+import { Loader2 } from "lucide-react"
 
 // Register necessary Chart.js components
 ChartJS.register(
@@ -57,32 +60,60 @@ type ResultType = {
 };
 
 export default function Page() {
-  const [text, setText] = useState("");
-  const [result, setResult] = useState<ResultType | null>(null);
+  const [text, setText] = useState("")
+  const [result, setResult] = useState<ResultType | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+
+  const { user } = useAuth()
+
+  if (!user) {
+    router.push("/login")
+    return null
+  }
+
   const handleAnalysis = async () => {
-    const response = await fetch("api/analyze-advanced", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: `text=${encodeURIComponent(text)}`,
-    });
-    const data = await response.json();
-    setResult(data);
-  };
+    setIsLoading(true)
+    try {
+      const response = await fetch("api/analyze-advanced", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `text=${encodeURIComponent(text)}`,
+      })
+      const data = await response.json()
+      setResult(data)
+    } catch (error) {
+      console.error("Error during analysis:", error)
+      // Optionally, you can set an error state here
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Advanced Sentiment Analysis</h2>
-      <Textarea
-        placeholder="Enter your text here..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={5}
-      />
-      <Button onClick={handleAnalysis}>Analyze</Button>
+      <Textarea placeholder="Enter your text here..." value={text} onChange={(e) => setText(e.target.value)} rows={5} />
+      <Button onClick={handleAnalysis} disabled={isLoading}>
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Analyzing...
+          </>
+        ) : (
+          "Analyze"
+        )}
+      </Button>
 
-      {result && (
+      {isLoading && (
+        <div className="flex justify-center items-center h-32">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )}
+
+      {result && !isLoading && (
         <Card>
           <CardHeader>
             <CardTitle>Advanced Analysis Result</CardTitle>
@@ -374,5 +405,5 @@ export default function Page() {
         </Card>
       )}
     </div>
-  );
+  )
 }

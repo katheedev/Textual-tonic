@@ -1,23 +1,27 @@
-'use client'
-import Link from 'next/link'
-import { useState } from 'react'
-import { useAuth } from '../../components/AuthProvider'
+"use client"
+import Link from "next/link"
+import { useState } from "react"
+import { useAuth } from "../../components/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast"
+import { Loader2 } from "lucide-react"
 
 export default function Login() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
   const { login } = useAuth()
 
   const handleLogin = async (e) => {
     e.preventDefault()
-  
+    setIsLoading(true)
+    setError("")
+
     try {
       const response = await login(username, password)
       if (response.ok) {
@@ -30,6 +34,7 @@ export default function Login() {
           title: "Error",
           description: response.message,
         })
+        setError("Invalid username or password")
       }
     } catch (error) {
       toast({
@@ -37,10 +42,12 @@ export default function Login() {
         title: "Error",
         description: error.message,
       })
-      setError('Invalid username or password')
+      setError("Invalid username or password")
+    } finally {
+      setIsLoading(false)
     }
   }
-  
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
@@ -54,6 +61,7 @@ export default function Login() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            disabled={isLoading}
           />
           <Input
             type="password"
@@ -61,8 +69,18 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={isLoading}
           />
-          <Button type="submit" className="w-full">Login</Button>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
+          </Button>
         </form>
         {error && (
           <Alert variant="destructive" className="mt-4">
@@ -71,8 +89,14 @@ export default function Login() {
         )}
       </CardContent>
       <CardFooter className="justify-center">
-        <p>Don't have an account? <Link href="/register" className="text-primary">Register</Link></p>
+        <p>
+          Don't have an account?{" "}
+          <Link href="/register" className="text-primary">
+            Register
+          </Link>
+        </p>
       </CardFooter>
     </Card>
   )
 }
+

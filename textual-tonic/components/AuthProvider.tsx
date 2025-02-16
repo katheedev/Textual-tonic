@@ -14,6 +14,7 @@ interface AuthContextType {
   user: User | null
   login: (username: string, password: string) => Promise<Response>
   logout: () => Promise<void>
+  isLoggingOut: boolean
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -32,6 +33,7 @@ interface AuthProviderProps {
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const router = useRouter()
 
   const checkAuth = async () => {
@@ -78,10 +80,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const logout = async (): Promise<void> => {
+    setIsLoggingOut(true)
     try {
       const response = await fetch("/api/logout", {
         method: "POST",
-        credentials: "include", // This is important for including cookies
+        credentials: "include",
       })
 
       if (response.ok) {
@@ -104,6 +107,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       }
     } catch (error) {
       console.error("Logout error:", error)
+    } finally {
+      setIsLoggingOut(false)
     }
   }
 
@@ -111,6 +116,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     user,
     login,
     logout,
+    isLoggingOut,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

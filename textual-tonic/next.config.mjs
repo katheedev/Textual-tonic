@@ -1,14 +1,15 @@
 /** @type {import('next').NextConfig} */
+const API_URL = process.env.API_URL
 const nextConfig = {
-    async rewrites() {
-      return [
-        {
-          source: '/api/:path*',
-          destination: 'https://textualtonic-acb67657f3a6.herokuapp.com/:path*' // Proxy to Backend
-        }
-      ]
-    }
-  }
-  
+  reactStrictMode: true,
+  rewrites: async () => {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${API_URL}/:path*`, // Proxy to Backend
+      },
+    ]
+  },
+}
 
-export default nextConfig;
+module.exports = nextConfig
