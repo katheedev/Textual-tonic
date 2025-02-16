@@ -1,22 +1,30 @@
+import os
 from flask import Flask, request, jsonify, session
 from textblob import TextBlob
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 import textstat
+from dotenv import load_dotenv
 
+load_dotenv()
 import nltk
 nltk.download('punkt_tab')
   
 app = Flask(__name__)
-app.secret_key = '12345649845634'  # Necessary for session management
+app.secret_key = os.getenv('SECRET_KEY')
 
-# MySQL database configuration
+timeout=10
+
+
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '12345',
-    'database': 'textual_tonic_db'
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_NAME'),
+    'port':os.getenv('DB_PORT'),
+    'connection_timeout':timeout
+
 }
 
 # Function to connect to the MySQL database
