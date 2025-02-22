@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
-import Cookies from "js-cookie"
+import Cookies from 'js-cookie';
 
 interface User {
   id: string
@@ -75,6 +75,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       }
       return response
     } catch (error) {
+      console.error(error)
       throw new Error('Login failed')
     }
   }

@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 
+
 export default function Login() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
@@ -17,22 +18,23 @@ export default function Login() {
   const { toast } = useToast()
   const { login } = useAuth()
 
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
-      const response = await login(username, password)
+      const response  = await login(username, password)
       if (response.ok) {
         toast({
           title: "Login Success",
         })
       } else {
+        const errorData = await response.json(); // Parse the JSON body
         toast({
           variant: "destructive",
           title: "Error",
-          description: response.message,
+          description: errorData.message,
         })
         setError("Invalid username or password")
       }
@@ -40,7 +42,7 @@ export default function Login() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: JSON.stringify(error),
       })
       setError("Invalid username or password")
     } finally {
@@ -90,7 +92,7 @@ export default function Login() {
       </CardContent>
       <CardFooter className="justify-center">
         <p>
-          Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
           <Link href="/register" className="text-primary">
             Register
           </Link>

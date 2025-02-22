@@ -5,8 +5,16 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Loader2 } from "lucide-react"
 
+interface HistoryItem {
+  text: string;
+  sentiment: string;
+  polarity: number;
+  subjectivity: number;
+  created_at: string;
+}
+
 export default function History() {
-  const [history, setHistory] = useState([])
+  const [history, setHistory] = useState<HistoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -49,7 +57,7 @@ export default function History() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {history.map((item, index) => (
+            {history.map((item: HistoryItem, index: number) => (
                 <TableRow key={index}>
                   <TableCell>{item.text.substring(0, 50)}...</TableCell>
                   <TableCell>{item.sentiment}</TableCell>

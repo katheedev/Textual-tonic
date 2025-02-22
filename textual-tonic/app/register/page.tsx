@@ -15,7 +15,7 @@ export default function Page() {
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleRegister = async (e) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
 

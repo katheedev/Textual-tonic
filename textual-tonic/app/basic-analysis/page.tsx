@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react"
 
 export default function Page() {
   const [text, setText] = useState("")
-  const [result, setResult] = useState(null)
+  const [result, setResult] = useState({sentiment:null,polarity:0,subjectivity:0})
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
